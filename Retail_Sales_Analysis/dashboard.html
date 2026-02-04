@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .metric-label {
+            color: #888;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            color: #333;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .metric-icon {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Sales Analytics Dashboard</h1>
+            <p class="subtitle">Data-Driven Insights for Business Growth</p>
+        </header>
+
+        <div class="metrics-grid" id="metricsGrid">
+            <!-- Metrics will be loaded here -->
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2>Revenue by Category</h2>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2>Regional Performance</h2>
+                <div class="chart-container">
+                    <canvas id="regionalChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2>Daily Sales Trend</h2>
+                <div class="chart-container">
+                    <canvas id="dailyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2>Orders by Category</h2>
+                <div class="chart-container">
+                    <canvas id="ordersChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <h2 style="color: #667eea; margin-bottom: 20px;">Top 10 Products by Revenue</h2>
+            <table id="productTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Units Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <!-- Product data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Data Analysis Portfolio Project | Created with SQL & JavaScript</p>
+            <p style="margin-top: 10px; opacity: 0.8;">© 2026 - All Rights Reserved</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample data - replace with actual data from dashboard_data.json
+        const dashboardData = {
+            "summary": {
+                "total_revenue": 7725.0,
+                "total_orders": 25,
+                "total_customers": 21,
+                "avg_order_value": 309.0
+            },
+            "category": [
+                {"category": "Electronics", "total_orders": 13, "total_units_sold": 23, "total_revenue": 5528.5, "avg_order_value": 425.27},
+                {"category": "Furniture", "total_orders": 5, "total_units_sold": 6, "total_revenue": 1350.0, "avg_order_value": 270.0},
+                {"category": "Stationery", "total_orders": 6, "total_units_sold": 27, "total_revenue": 69.5, "avg_order_value": 11.58},
+                {"category": "Office", "total_orders": 1, "total_units_sold": 1, "total_revenue": 120.0, "avg_order_value": 120.0}
+            ],
+            "regional": [
+                {"region": "East", "total_orders": 7, "total_revenue": 2142.5, "unique_customers": 7},
+                {"region": "North", "total_orders": 6, "total_revenue": 1995.0, "unique_customers": 4},
+                {"region": "West", "total_orders": 7, "total_revenue": 1883.5, "unique_customers": 7},
+                {"region": "South", "total_orders": 5, "total_revenue": 1047.0, "unique_customers": 5}
+            ],
+            "daily": [
+                {"order_date": "2024-01-15", "orders": 1, "revenue": 1200.0},
+                {"order_date": "2024-01-16", "orders": 2, "revenue": 126.0},
+                {"order_date": "2024-01-17", "orders": 1, "revenue": 700.0},
+                {"order_date": "2024-01-18", "orders": 1, "revenue": 250.0},
+                {"order_date": "2024-01-19", "orders": 1, "revenue": 450.0},
+                {"order_date": "2024-01-20", "orders": 1, "revenue": 1200.0},
+                {"order_date": "2024-01-21", "orders": 1, "revenue": 3.5},
+                {"order_date": "2024-01-22", "orders": 1, "revenue": 60.0},
+                {"order_date": "2024-01-23", "orders": 1, "revenue": 24.0},
+                {"order_date": "2024-01-24", "orders": 1, "revenue": 120.0},
+                {"order_date": "2024-01-25", "orders": 1, "revenue": 150.0},
+                {"order_date": "2024-01-26", "orders": 1, "revenue": 30.0},
+                {"order_date": "2024-01-28", "orders": 1, "revenue": 125.0},
+                {"order_date": "2024-01-29", "orders": 1, "revenue": 90.0},
+                {"order_date": "2024-01-30", "orders": 1, "revenue": 180.0},
+                {"order_date": "2024-01-31", "orders": 1, "revenue": 70.0},
+                {"order_date": "2024-02-01", "orders": 1, "revenue": 220.0},
+                {"order_date": "2024-02-02", "orders": 1, "revenue": 24.0},
+                {"order_date": "2024-02-03", "orders": 1, "revenue": 350.0},
+                {"order_date": "2024-02-04", "orders": 1, "revenue": 1200.0},
+                {"order_date": "2024-02-05", "orders": 1, "revenue": 500.0},
+                {"order_date": "2024-02-06", "orders": 1, "revenue": 225.0},
+                {"order_date": "2024-02-07", "orders": 1, "revenue": 127.5}
+            ],
+            "product": [
+                {"product_name": "Laptop", "category": "Electronics", "units_sold": 3, "revenue": 3600.0},
+                {"product_name": "Monitor", "category": "Electronics", "units_sold": 3, "revenue": 1050.0},
+                {"product_name": "Furniture", "category": "Desk Chair", "units_sold": 3, "revenue": 750.0},
+                {"product_name": "Office Desk", "category": "Furniture", "units_sold": 1, "revenue": 450.0},
+                {"product_name": "Printer", "category": "Electronics", "units_sold": 1, "revenue": 300.0},
+                {"product_name": "Keyboard", "category": "Electronics", "units_sold": 4, "revenue": 300.0},
+                {"product_name": "File Cabinet", "category": "Furniture", "units_sold": 1, "revenue": 220.0},
+                {"product_name": "Bookshelf", "category": "Furniture", "units_sold": 1, "revenue": 180.0},
+                {"product_name": "Markers", "category": "Stationery", "units_sold": 10, "revenue": 150.0},
+                {"product_name": "Paper Ream", "category": "Stationery", "units_sold": 5, "revenue": 125.0}
+            ]
+        };
+
+        // Load metrics
+        function loadMetrics() {
+            const metrics = [
+                { label: 'Total Revenue', value: `$${dashboardData.summary.total_revenue.toLocaleString()}`, icon: '💰' },
+                { label: 'Total Orders', value: dashboardData.summary.total_orders, icon: '📦' },
+                { label: 'Total Customers', value: dashboardData.summary.total_customers, icon: '👥' },
+                { label: 'Avg Order Value', value: `$${dashboardData.summary.avg_order_value.toFixed(2)}`, icon: '📊' }
+            ];
+
+            const grid = document.getElementById('metricsGrid');
+            grid.innerHTML = metrics.map(m => `
+                <div class="metric-card">
+                    <div class="metric-icon">${m.icon}</div>
+                    <div class="metric-label">${m.label}</div>
+                    <div class="metric-value">${m.value}</div>
+                </div>
+            `).join('');
+        }
+
+        // Category Revenue Chart
+        const categoryChart = new Chart(document.getElementById('categoryChart'), {
+            type: 'bar',
+            data: {
+                labels: dashboardData.category.map(c => c.category),
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: dashboardData.category.map(c => c.total_revenue),
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)',
+                        'rgba(237, 100, 166, 0.8)',
+                        'rgba(255, 154, 158, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Regional Chart
+        const regionalChart = new Chart(document.getElementById('regionalChart'), {
+            type: 'doughnut',
+            data: {
+                labels: dashboardData.regional.map(r => r.region),
+                datasets: [{
+                    data: dashboardData.regional.map(r => r.total_revenue),
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)',
+                        'rgba(237, 100, 166, 0.8)',
+                        'rgba(255, 154, 158, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Daily Sales Trend
+        const dailyChart = new Chart(document.getElementById('dailyChart'), {
+            type: 'line',
+            data: {
+                labels: dashboardData.daily.map(d => d.order_date.substring(5)),
+                datasets: [{
+                    label: 'Daily Revenue',
+                    data: dashboardData.daily.map(d => d.revenue),
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Orders by Category
+        const ordersChart = new Chart(document.getElementById('ordersChart'), {
+            type: 'pie',
+            data: {
+                labels: dashboardData.category.map(c => c.category),
+                datasets: [{
+                    data: dashboardData.category.map(c => c.total_orders),
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)',
+                        'rgba(237, 100, 166, 0.8)',
+                        'rgba(255, 154, 158, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Load product table
+        function loadProductTable() {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = dashboardData.product.map((p, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${p.product_name}</td>
+                    <td>${p.category}</td>
+                    <td>${p.units_sold}</td>
+                    <td>$${p.revenue.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize dashboard
+        loadMetrics();
+        loadProductTable();
+    </script>
+</body>
+</html>
