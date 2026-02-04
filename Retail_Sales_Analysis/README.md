@@ -1,16 +1,24 @@
 # 📊 Data Analysis Portfolio: Retail Sales Analysis
 
+## 🚀 Quick Links
+**[📊 View Live Interactive Dashboard →](https://adlisyahputra.github.io/retail-sales-analysis-portfolio/Retail_Sales_Analysis/dashboard.html)**
+
+**[📝 Detailed Data Cleaning Report →](DATA_CLEANING_REPORT.md)**
+
+---
+
 ## 🎯 Project Overview
 This portfolio project demonstrates comprehensive data analysis skills including data cleaning, SQL analysis, and interactive dashboard creation. The project analyzes retail sales data to uncover business insights and present them through an interactive dashboard.
 
 ## 📁 Project Structure
 ```
-retail-sales-analysis/
+retail-sales-analysis-portofolio/
 ├── raw_sales_data.csv              # Raw dataset with quality issues
 ├── data_cleaning_analysis.sql      # Complete SQL cleaning & analysis script
 ├── process_data.py                 # Python data processing pipeline
 ├── dashboard.html                  # Interactive web dashboard
 ├── sales_analysis.db              # SQLite database (generated)
+├── DATA_CLEANING_REPORT.md        # Detailed cleaning documentation
 └── README.md                       # Project documentation
 ```
 
@@ -133,7 +141,9 @@ python3 process_data.py
 ```
 
 ### View Dashboard
-Simply open `dashboard.html` in any modern web browser.
+**Option 1:** [View Live Dashboard Online](https://adlisyahputra.github.io/retail-sales-analysis-portofolio/dashboard.html) ⭐ Recommended
+
+**Option 2:** Download `dashboard.html` and open in any modern web browser
 
 ## 📊 SQL Queries Examples
 
@@ -193,10 +203,9 @@ ORDER BY lifetime_value DESC;
 - [ ] Add export functionality (PDF reports)
 
 ## 👤 Author
-**[Your Name]**
-- Portfolio: [Your Portfolio URL]
-- LinkedIn: [Your LinkedIn]
-- GitHub: [Your GitHub]
+**Adlisyahputra**
+- GitHub: [@Adlisyahputra](https://github.com/Adlisyahputra)
+- Portfolio: [retail-sales-analysis-portofolio](https://github.com/Adlisyahputra/retail-sales-analysis-portofolio)
 
 ## 📄 License
 This project is open source and available for educational purposes.
