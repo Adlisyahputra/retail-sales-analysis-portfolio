@@ -206,6 +206,7 @@ ORDER BY lifetime_value DESC;
 **Adlisyahputra**
 - GitHub: [@Adlisyahputra](https://github.com/Adlisyahputra)
 - Portfolio: [retail-sales-analysis-portofolio](https://github.com/Adlisyahputra/retail-sales-analysis-portofolio)
+- Linkedln: https://www.linkedin.com/in/adli-syahputra-1b275a3ab
 
 ## 📄 License
 This project is open source and available for educational purposes.
