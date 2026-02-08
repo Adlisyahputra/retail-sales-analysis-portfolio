@@ -5,212 +5,176 @@
 
 **[📝 Detailed Data Cleaning Report →](DATA_CLEANING_REPORT.md)**
 
+
 ---
 
-## 🎯 Project Overview
-This portfolio project demonstrates comprehensive data analysis skills including data cleaning, SQL analysis, and interactive dashboard creation. The project analyzes retail sales data to uncover business insights and present them through an interactive dashboard.
+## 🎯 What This Project Does
+
+This project tackles a common real-world problem: messy sales data. I took 25 transactions with quality issues (NULL values, inconsistent formatting, negative quantities) and cleaned them using SQL, then built an interactive dashboard to visualize the insights.
+
+**The Challenge:** Raw data is rarely perfect. This dataset had 7 different data quality issues that needed fixing before analysis could begin.
+
+**The Solution:** End-to-end pipeline using SQL for cleaning, Python for processing, and Chart.js for visualization.
 
 ## 📁 Project Structure
 ```
-retail-sales-analysis-portofolio/
-├── raw_sales_data.csv              # Raw dataset with quality issues
-├── data_cleaning_analysis.sql      # Complete SQL cleaning & analysis script
-├── process_data.py                 # Python data processing pipeline
-├── dashboard.html                  # Interactive web dashboard
-├── sales_analysis.db              # SQLite database (generated)
-├── DATA_CLEANING_REPORT.md        # Detailed cleaning documentation
-└── README.md                       # Project documentation
+retail-sales-analysis-portfolio/
+├── README.md
+├── data/
+│   └── raw_sales_data.csv           # Original messy dataset
+├── sql/
+│   └── data_cleaning_analysis.sql   # All SQL cleaning & analysis queries
+├── scripts/
+│   └── process_data.py              # Python automation script
+├── dashboard/
+│   └── dashboard.html               # Interactive visualization
+└── docs/
+    └── DATA_CLEANING_REPORT.md      # Detailed before/after documentation
 ```
 
-## 🔍 Problem Statement
-The raw sales data contains several quality issues that need to be addressed:
-- **NULL values** in customer names
-- **Inconsistent formatting** (whitespace, case sensitivity)
-- **Missing ship dates**
-- **Invalid dates** (data entry errors)
-- **Negative quantities** (data anomalies)
-- **Inconsistent category naming** (electronics vs Electronics)
+**Note:** Running the Python script generates `sales_analysis.db` (SQLite database)
 
-## 🛠️ Data Cleaning Process
+## 🧹 The Data Cleaning Journey
 
-### Issues Identified
-1. **Missing Values**: 3 customer names marked as 'NULL'
-2. **Whitespace Issues**: Leading/trailing spaces in product and customer names
-3. **Inconsistent Categorization**: Mixed case in category names
-4. **Data Anomalies**: Negative quantities, invalid dates
-5. **Missing Ship Dates**: 4 records without shipping information
+### Problems I Found
+When I first opened this dataset, here's what needed fixing:
 
-### Cleaning Steps
+1. **3 customer names** were literally "NULL" (string, not actual NULL)
+2. **Whitespace everywhere** - products like `"  Mouse  "` instead of `"Mouse"`
+3. **Inconsistent categories** - same category spelled 3 different ways
+4. **One negative quantity** (-1 notebook... what does that even mean?)
+5. **Invalid date** - one order had `"invalid-date"` as the date
+6. **4 missing ship dates** - orders without shipping info
+
+### How I Fixed It
+
+Used SQL CASE statements and string functions:
+
 ```sql
--- 1. Standardize NULL values
+-- Example: Cleaning customer names
 CASE 
-    WHEN customer_name = 'NULL' OR customer_name IS NULL 
-    THEN 'Unknown Customer'
+    WHEN customer_name = 'NULL' THEN 'Unknown Customer'
     ELSE TRIM(customer_name)
 END as customer_name
 
--- 2. Remove whitespace
-TRIM(product_name) as product_name
-
--- 3. Standardize categories
+-- Example: Standardizing categories
 CASE 
-    WHEN LOWER(category) = 'electronics' THEN 'Electronics'
-    WHEN LOWER(category) = 'furniture' THEN 'Furniture'
-    -- ... other categories
+    WHEN LOWER(category) IN ('electronics', 'ELECTRONICS') THEN 'Electronics'
+    -- ... more standardization
 END as category
-
--- 4. Fix negative quantities
-ABS(quantity) as quantity
-
--- 5. Handle invalid dates
-CASE 
-    WHEN order_date LIKE '%invalid%' THEN NULL
-    ELSE order_date
-END as order_date
 ```
 
-## 📈 Key Findings
+See the [full SQL script](sql/data_cleaning_analysis.sql) for all cleaning steps.
 
-### Summary Metrics
-- **Total Revenue**: $7,725.00
-- **Total Orders**: 25
-- **Unique Customers**: 21
-- **Average Order Value**: $309.00
+## 📊 What I Discovered
 
-### Category Performance
-| Category     | Orders | Revenue    | % of Total |
-|-------------|--------|------------|------------|
-| Electronics | 13     | $5,528.50  | 71.6%      |
-| Furniture   | 5      | $1,350.00  | 17.5%      |
-| Stationery  | 6      | $69.50     | 0.9%       |
-| Office      | 1      | $120.00    | 1.6%       |
+After cleaning, here's what the data revealed:
 
-### Regional Performance
-| Region | Orders | Revenue    | Customers |
-|--------|--------|------------|-----------|
-| East   | 7      | $2,142.50  | 7         |
-| North  | 6      | $1,995.00  | 4         |
-| West   | 7      | $1,883.50  | 7         |
-| South  | 5      | $1,047.00  | 5         |
+### Quick Stats
+- **$7,725** in total revenue from 25 orders
+- **21 unique customers** with an average order value of **$309**
+- **Electronics dominate**: 71.6% of revenue
+
+### Interesting Findings
+
+**1. Electronics is King**  
+Technology products (laptops, monitors) drive the majority of revenue. The top 3 products alone account for $5,400.
+
+**2. Regional Balance**  
+Revenue is evenly distributed across all 4 regions (East, North, West, South), suggesting good market penetration.
+
+**3. One Loyal Customer**  
+Customer C001 (John Doe) placed 4 orders - 16% of all transactions. Perfect candidate for a loyalty program.
 
 ### Top Products
-1. **Laptop** - $3,600.00 (3 units)
-2. **Monitor** - $1,050.00 (3 units)
-3. **Desk Chair** - $750.00 (3 units)
+| Product | Revenue | Units Sold |
+|---------|---------|------------|
+| Laptop | $3,600 | 3 |
+| Monitor | $1,050 | 3 |
+| Desk Chair | $750 | 3 |
 
-## 🔧 Technical Skills Demonstrated
+## 🛠️ Tech Stack
 
-### SQL Skills
-- ✅ Data Quality Assessment
-- ✅ Data Cleaning & Transformation
-- ✅ Aggregate Functions (SUM, AVG, COUNT)
-- ✅ CASE Statements
-- ✅ GROUP BY & Ordering
-- ✅ Window Functions
-- ✅ View Creation
-- ✅ Subqueries
+**Data Processing:**
+- SQL (SQLite) - Data cleaning & transformation
+- Python 3.13.7 & Pandas - Automation & export
+  
+**Visualization:**
+- HTML/CSS - Dashboard structure
+- Chart.js - Interactive charts
+- GitHub Pages - Hosting
 
-### Python Skills
-- ✅ Database Operations (SQLite)
-- ✅ Data Processing with Pandas
-- ✅ JSON Export
-- ✅ Automation Scripts
+## 🚀 Running This Project
 
-### Data Visualization
-- ✅ Interactive Dashboard Creation
-- ✅ Chart.js Integration
-- ✅ Responsive Web Design
-- ✅ KPI Metric Cards
-- ✅ Multiple Chart Types (Bar, Line, Pie, Doughnut)
-
-## 🚀 How to Use
-
-### Prerequisites
-- Python 3.x
-- SQLite (built-in with Python)
-- pandas library
-- Web browser (for dashboard)
-
-### Installation
+**Quick Start:**
 ```bash
-# Install required packages
+# 1. Install dependencies
 pip install pandas
 
-# Run the analysis pipeline
-python3 process_data.py
+# 2. Run the analysis
+python3 scripts/process_data.py
+
+# 3. Open dashboard
+open dashboard/dashboard.html
 ```
 
-### View Dashboard
-**Option 1:** [View Live Dashboard Online](https://adlisyahputra.github.io/retail-sales-analysis-portofolio/dashboard.html) ⭐ Recommended
+**Or just [view it live](https://adlisyahputra.github.io/retail-sales-analysis-portofolio/dashboard/dashboard.html)!**
 
-**Option 2:** Download `dashboard.html` and open in any modern web browser
+## 📈 Sample SQL Queries
 
-## 📊 SQL Queries Examples
-
-### Category Sales Analysis
+**Category Performance:**
 ```sql
 SELECT 
     category,
-    COUNT(*) as total_orders,
-    SUM(quantity) as total_units_sold,
-    ROUND(SUM(total_amount), 2) as total_revenue,
-    ROUND(AVG(total_amount), 2) as avg_order_value
+    COUNT(*) as orders,
+    ROUND(SUM(total_amount), 2) as revenue
 FROM cleaned_sales
 GROUP BY category
-ORDER BY total_revenue DESC;
+ORDER BY revenue DESC;
 ```
 
-### Customer Lifetime Value
+**Customer Lifetime Value:**
 ```sql
 SELECT 
-    customer_id,
     customer_name,
     COUNT(*) as total_orders,
-    ROUND(SUM(total_amount), 2) as lifetime_value,
-    ROUND(AVG(total_amount), 2) as avg_order_value
+    ROUND(SUM(total_amount), 2) as lifetime_value
 FROM cleaned_sales
 WHERE customer_name != 'Unknown Customer'
-GROUP BY customer_id, customer_name
+GROUP BY customer_name
 ORDER BY lifetime_value DESC;
 ```
 
-## 📌 Business Insights
+## 💡 What I Learned
 
-1. **Electronics Dominance**: Electronics category drives 71.6% of total revenue, indicating strong demand for tech products.
+**Technical Skills:**
+- Writing production-quality SQL for data cleaning (not just SELECT *)
+- Handling edge cases (NULL as a string, negative quantities)
+- Building automated pipelines that others can reproduce
+- Creating dashboards that tell a story, not just show data
 
-2. **Regional Balance**: Revenue is fairly distributed across regions, with East region slightly leading.
+**Biggest Challenge:**  
+Deciding when to clean vs. when to remove data. I had to balance data quality with preserving business insights.
 
-3. **High-Value Items**: Laptops and monitors are top revenue generators, suggesting focus on premium products.
+## 🔮 What's Next
 
-4. **Customer Retention**: John Doe (C001) appears 4 times, indicating repeat customer behavior worth nurturing.
+Planning to add:
+- Customer segmentation using RFM analysis
+- Time-series forecasting for sales prediction
+- Automated PDF report generation
 
-5. **Payment Preferences**: Credit cards are the most popular payment method, important for payment processing optimization.
-
-## 🎓 Learning Outcomes
-- Data cleaning best practices in SQL
-- Handling real-world messy data
-- Creating meaningful business metrics
-- Building interactive dashboards
-- Data storytelling and visualization
-- End-to-end data analysis pipeline
-
-## 📝 Future Enhancements
-- [ ] Add customer segmentation analysis (RFM)
-- [ ] Implement predictive analytics for sales forecasting
-- [ ] Create automated email reports
-- [ ] Add data quality monitoring dashboard
-- [ ] Integrate with real-time data sources
-- [ ] Add export functionality (PDF reports)
+Feedback and suggestions welcome!
 
 ## 👤 Author
-**Adlisyahputra**
-- GitHub: [@Adlisyahputra](https://github.com/Adlisyahputra)
-- Portfolio: [retail-sales-analysis-portofolio](https://github.com/Adlisyahputra/retail-sales-analysis-portofolio)
-- Linkedln: https://www.linkedin.com/in/adli-syahputra-1b275a3ab
 
-## 📄 License
-This project is open source and available for educational purposes.
+**Adli Syahputra**
+- 💻 [GitHub](https://github.com/Adlisyahputra)
+- 💼 [LinkedIn](https://www.linkedin.com/in/adli-syahputra-1b275a3ab)
+- 📧 adlisaputra869@gmail.com
 
 ---
 
-*Last Updated: February 2026*
+**Project Type:** Portfolio / Educational  
+**Last Updated:** February 2026
+
+*Feel free to fork, star ⭐, or use this as a template for your own data cleaning projects!*
